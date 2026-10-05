@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/base :: head('Inicio')}"></head>
+<body>
+<main class="stage">
+    <header class="topbar">
+        <a th:replace="~{fragments/base :: marca}"></a>
+        <a class="link" th:href="@{/admin/ordenes}">Acceso del taller</a>
+    </header>
+
+    <section class="hero">
+        <div>
+            <h1>Tu equipo, paso a paso.</h1>
+            <p>Mira en qué etapa está tu reparación sin llamar ni pasar por el taller.</p>
+            <ol class="steps">
+                <li><strong>Dejas tu equipo</strong>Te damos una etiqueta con un código.</li>
+                <li><strong>Lo reparamos</strong>Actualizamos la etapa cada vez que avanza.</li>
+                <li><strong>Lo consultas</strong>Con el código ves el estado desde donde estés.</li>
+            </ol>
+        </div>
+
+        <div th:replace="~{fragments/base :: buscador('', false)}"></div>
+    </section>
+</main>
+<script th:replace="~{fragments/base :: scripts}"></script>
+</body>
+</html>

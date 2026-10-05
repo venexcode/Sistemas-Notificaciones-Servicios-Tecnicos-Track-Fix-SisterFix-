@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/base :: head('Consulta el estado de tu equipo')}"></head>
+<body>
+<main class="stage">
+    <header class="topbar">
+        <a th:replace="~{fragments/base :: marca}"></a>
+    </header>
+
+    <section class="hero">
+        <div>
+            <h1>¿Cómo va tu equipo?</h1>
+            <p>Escribe el código de la etiqueta que le pusimos a tu equipo y mira en qué etapa está de la reparación.</p>
+        </div>
+
+        <div th:replace="~{fragments/base :: buscador('', false)}"></div>
+    </section>
+</main>
+<script th:replace="~{fragments/base :: scripts}"></script>
+</body>
+</html>

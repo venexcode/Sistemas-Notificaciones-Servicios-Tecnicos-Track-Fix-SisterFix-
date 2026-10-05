@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+
+<head th:fragment="head(titulo)">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title th:text="${titulo} + ' | SisterFix'">SisterFix</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wdth,wght@12..96,75..100,200..800&family=Newsreader:ital,opsz,wght@1,6..72,400;1,6..72,500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/sisterfix.css}">
+</head>
+
+<body>
+
+<a th:fragment="marca" class="brand" th:href="@{/}" aria-label="SisterFix, ir al inicio">Sister<span>Fix</span></a>
+
+<!-- Etiqueta con el buscador. valor: codigo a precargar. fallo: true si la busqueda no encontro nada -->
+<div th:fragment="buscador(valor, fallo)" class="tag-wrap">
+    <form class="tag" th:action="@{/sisterfix/consultar}" method="get">
+        <div class="notice" th:if="${fallo}" role="alert">
+            <strong>No encontramos esa etiqueta.</strong>
+            Revisa que el código coincida con el de tu comprobante.
+        </div>
+
+        <label class="field-label" for="codigo">Código de tu etiqueta</label>
+        <input class="code-input" id="codigo" name="codigo" type="text" data-codigo required
+               maxlength="20" placeholder="K7P2-9XMA" autocomplete="off" autocapitalize="characters" spellcheck="false"
+               th:value="${valor}">
+        <p class="hint">Lo encuentras en tu comprobante de ingreso.</p>
+
+        <button class="btn btn--block" type="submit">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5L21 21"/></svg>
+            Consultar mi equipo
+        </button>
+
+        <p class="stub">No necesitas cuenta ni contraseña, solo el código.</p>
+    </form>
+</div>
+
+<script th:fragment="scripts" th:src="@{/js/buscador.js}" defer></script>
+
+</body>
+</html>

@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<body>
+
+<!-- Columna del tablero del taller. estado: nombre del enum. items: ordenes de esa etapa -->
+<section th:fragment="lane(estado, items)" class="lane" th:attr="data-estado=${estado}">
+    <h2 class="lane__title">
+        <span th:text="${@estados.etiqueta(estado)}">Recibido</span>
+        <span class="count" th:text="${#lists.size(items)}">0</span>
+    </h2>
+    <p class="lane__empty" th:if="${#lists.isEmpty(items)}">Nada en esta etapa.</p>
+
+    <details class="card" th:each="o : ${items}">
+        <summary>
+            <span class="stamp stamp--sm" th:text="${o.codigoSeguimiento}">K7P2-9XMA</span>
+            <strong class="card__device" th:text="${o.dispositivo}">iPhone 12</strong>
+            <span class="card__meta" th:text="${o.cliente.nombre}">María Gómez</span>
+            <span class="card__meta" th:text="'Actualizada el ' + ${#temporals.format(o.fechaUltimaActualizacion, 'dd/MM HH:mm')}">Actualizada el 01/10 10:30</span>
+        </summary>
+
+        <div class="card__body">
+            <p class="note" th:text="${o.problemaReportado}">La pantalla no enciende.</p>
+
+            <form class="move" method="post" th:action="@{/admin/ordenes/{id}/actualizar-estado(id=${o.id})}">
+                <label>Pasar a
+                    <select name="nuevoEstado" required>
+                        <option th:each="e : ${ {'RECIBIDO','EN_DIAGNOSTICO','EN_REPARACION','LISTO_PARA_RETIRAR','ENTREGADO','CANCELADO'} }"
+                                th:unless="${e == estado}" th:value="${e}" th:text="${@estados.etiqueta(e)}">En reparación</option>
+                    </select>
+                </label>
+                <label>Nota para el cliente
+                    <textarea name="observaciones" maxlength="255" placeholder="Opcional"></textarea>
+                    <small>El cliente ve esta nota en su consulta.</small>
+                </label>
+                <button class="btn" type="submit">Guardar cambio</button>
+            </form>
+        </div>
+    </details>
+</section>
+
+</body>
+</html>

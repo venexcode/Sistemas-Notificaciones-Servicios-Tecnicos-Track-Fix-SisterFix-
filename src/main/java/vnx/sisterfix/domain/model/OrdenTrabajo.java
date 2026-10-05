@@ -10,7 +10,6 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-@AllArgsConstructor
 @NoArgsConstructor
 @Getter
 @Setter
@@ -22,7 +21,8 @@ public class OrdenTrabajo {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
+    @Setter(AccessLevel.NONE)
+    private Long id; // Wrapper: null = entidad nueva
 
     @Column(name = "codigo_seguimiento", nullable = false, unique = true, length = 10)
     private String codigoSeguimiento;
@@ -71,10 +71,26 @@ public class OrdenTrabajo {
         this.fechaUltimaActualizacion = LocalDateTime.now();
     }
 
-    // Método de conveniencia para registrar cambio de estado
+    // Registra el cambio de estado validando la transicion
     public void cambiarEstado(EstadoOrden nuevoEstado, String observaciones) {
+        if (nuevoEstado == null) {
+            throw new IllegalArgumentException("El nuevo estado es obligatorio.");
+        }
+
+        // Si estadoOrden es null, es el primer registro (creacion de la orden)
+        if (this.estadoOrden != null) {
+            if (this.estadoOrden == EstadoOrden.ENTREGADO || this.estadoOrden == EstadoOrden.CANCELADO) {
+                throw new IllegalStateException(
+                        "No se puede modificar una orden en estado " + this.estadoOrden + ".");
+            }
+            if (this.estadoOrden == nuevoEstado) {
+                throw new IllegalStateException("La orden ya se encuentra en estado " + nuevoEstado + ".");
+            }
+        }
+
         HistorialEstado registro = new HistorialEstado(this.estadoOrden, nuevoEstado, observaciones, this);
         this.historial.add(registro);
         this.estadoOrden = nuevoEstado;
+        this.fechaUltimaActualizacion = LocalDateTime.now();
     }
 }

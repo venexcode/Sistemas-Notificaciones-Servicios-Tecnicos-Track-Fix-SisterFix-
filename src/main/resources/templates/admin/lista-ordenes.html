@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/base :: head('Panel del taller')}"></head>
+<body>
+<main class="stage stage--wide">
+    <header class="topbar">
+        <a th:replace="~{fragments/base :: marca}"></a>
+        <form th:action="@{/logout}" method="post">
+            <span class="topbar__meta">Panel del taller</span>
+            <button class="link link--btn" type="submit">Cerrar sesión</button>
+        </form>
+    </header>
+
+    <div class="flash flash--ok" role="status" th:if="${mensaje}" th:text="${mensaje}">Estado actualizado correctamente.</div>
+    <div class="flash flash--error" role="alert" th:if="${error}" th:text="${error}">Error</div>
+
+    <div class="empty-board" th:if="${#lists.isEmpty(ordenes)}">
+        <p>Todavía no hay órdenes. Cuando registres un equipo, aparecerá aquí.</p>
+    </div>
+
+    <div class="board" th:unless="${#lists.isEmpty(ordenes)}">
+        <section th:replace="~{fragments/tablero :: lane('RECIBIDO', ${ordenes.?[estadoOrden.name() == 'RECIBIDO']})}"></section>
+        <section th:replace="~{fragments/tablero :: lane('EN_DIAGNOSTICO', ${ordenes.?[estadoOrden.name() == 'EN_DIAGNOSTICO']})}"></section>
+        <section th:replace="~{fragments/tablero :: lane('EN_REPARACION', ${ordenes.?[estadoOrden.name() == 'EN_REPARACION']})}"></section>
+        <section th:replace="~{fragments/tablero :: lane('LISTO_PARA_RETIRAR', ${ordenes.?[estadoOrden.name() == 'LISTO_PARA_RETIRAR']})}"></section>
+    </div>
+
+    <!-- Ordenes cerradas: ya no admiten cambios de estado -->
+    <section class="closed" th:unless="${#lists.isEmpty(ordenes)}"
+             th:with="cerradas=${ordenes.?[estadoOrden.name() == 'ENTREGADO' or estadoOrden.name() == 'CANCELADO']}">
+        <h2>Cerradas <span class="count" th:text="${#lists.size(cerradas)}">0</span></h2>
+        <ul>
+            <li th:each="o : ${cerradas}">
+                <span class="stamp stamp--sm" th:text="${o.codigoSeguimiento}">K7P2-9XMA</span>
+                <span th:text="${o.dispositivo}">iPhone 12</span>
+                <span th:text="${o.cliente.nombre}">María</span>
+                <span class="pill" th:classappend="${'pill--' + #strings.toLowerCase(o.estadoOrden.name())}"
+                      th:text="${@estados.etiqueta(o.estadoOrden.name())}">Entregado</span>
+            </li>
+        </ul>
+    </section>
+</main>
+
+</body>
+</html>

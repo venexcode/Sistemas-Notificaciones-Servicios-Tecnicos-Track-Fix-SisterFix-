@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/base :: head('Estado de tu equipo')}"></head>
+<body>
+<main class="stage">
+    <header class="topbar">
+        <a th:replace="~{fragments/base :: marca}"></a>
+        <a class="link" th:href="@{/sisterfix}">Consultar otro código</a>
+    </header>
+
+    <!-- Orden encontrada -->
+    <th:block th:if="${orden != null}"
+              th:with="etapas=${ {'RECIBIDO','EN_DIAGNOSTICO','EN_REPARACION','LISTO_PARA_RETIRAR','ENTREGADO'} },
+                     clave=${orden.estadoActual.name()},
+                     pos=${etapas.indexOf(orden.estadoActual.name())}">
+
+        <div class="tag-wrap tag-wrap--wide">
+            <article class="tag tag--wide">
+                <header class="tag__head">
+                    <div>
+                        <h1 th:text="${orden.dispositivo}">iPhone 12</h1>
+                        <p class="tag__owner"
+                           th:text="'Equipo de ' + ${#strings.arraySplit(orden.nombreCliente, ' ')[0]} + ', ingresado el ' + ${#temporals.format(orden.fechaCreacion, 'dd/MM/yyyy')}">
+                            Equipo de María, ingresado el 01/10/2026
+                        </p>
+                    </div>
+                    <span class="stamp" th:text="${orden.codigoSeguimiento}">K7P2-9XMA</span>
+                </header>
+
+                <div class="status" role="status" th:classappend="${'status--' + #strings.toLowerCase(clave)}">
+                    <p class="status__label" th:text="${@estados.etiqueta(clave)}">En reparación</p>
+                    <p class="status__desc" th:text="${@estados.descripcion(clave)}">Ya estamos trabajando en tu equipo.</p>
+                </div>
+
+                <ol class="track" aria-label="Avance de la reparación" th:unless="${clave == 'CANCELADO'}">
+                    <li th:each="e, it : ${etapas}"
+                        th:classappend="${it.index lt pos ? 'is-done' : (it.index == pos ? 'is-current' : '')}"
+                        th:attr="aria-current=${it.index == pos ? 'step' : null}">
+                        <span th:text="${@estados.etiqueta(e)}">Recibido</span>
+                    </li>
+                </ol>
+
+                <div class="note-block">
+                    <h2>Lo que nos contaste</h2>
+                    <p class="note" th:text="${orden.problemaReportado}">La pantalla no enciende.</p>
+                </div>
+
+                <p class="stub">Guarda tu código: lo necesitas para consultar y para retirar el equipo.</p>
+            </article>
+        </div>
+
+        <section class="history" aria-labelledby="titulo-historial">
+            <h2 id="titulo-historial">Historial de tu equipo</h2>
+            <ul>
+                <li class="slip" th:each="h : ${orden.historial}">
+                    <div class="slip__head">
+                        <strong th:text="${@estados.etiqueta(h.estadoNuevo.name())}">Recibido</strong>
+                        <time th:text="${#temporals.format(h.fechaCambio, 'dd/MM/yyyy HH:mm')}">01/10/2026 10:30</time>
+                    </div>
+                    <p class="note" th:if="${!#strings.isEmpty(h.observaciones)}" th:text="${h.observaciones}">
+                        Ingreso del equipo al taller.
+                    </p>
+                </li>
+            </ul>
+        </section>
+    </th:block>
+
+    <!-- Orden no encontrada: se vuelve a mostrar el buscador con el codigo escrito -->
+    <section class="hero" th:if="${orden == null}">
+        <div>
+            <h1>Esa etiqueta no aparece.</h1>
+            <p>Prueba de nuevo con el código que figura en tu comprobante de ingreso.</p>
+        </div>
+        <div th:replace="~{fragments/base :: buscador(${codigoIngresado}, true)}"></div>
+    </section>
+</main>
+<script th:replace="~{fragments/base :: scripts}"></script>
+</body>
+</html>
