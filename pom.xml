@@ -84,6 +84,13 @@
             <optional>true</optional>
         </dependency>
 
+        <!-- Codigo QR de las etiquetas -->
+        <dependency>
+            <groupId>com.google.zxing</groupId>
+            <artifactId>core</artifactId>
+            <version>3.5.3</version>
+        </dependency>
+
         <!-- Tests -->
         <dependency>
             <groupId>org.springframework.boot</groupId>

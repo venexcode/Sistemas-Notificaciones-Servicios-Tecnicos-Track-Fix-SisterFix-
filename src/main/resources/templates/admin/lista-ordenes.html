@@ -14,19 +14,61 @@
     <div class="flash flash--ok" role="status" th:if="${mensaje}" th:text="${mensaje}">Estado actualizado correctamente.</div>
     <div class="flash flash--error" role="alert" th:if="${error}" th:text="${error}">Error</div>
 
+    <!-- Buscar y registrar -->
+    <section class="toolbar" aria-label="Buscar y registrar">
+        <form class="search" th:action="@{/admin/ordenes}" method="get" role="search">
+            <input type="hidden" name="etapa" th:if="${!#strings.isEmpty(etapa)}" th:value="${etapa}">
+            <label class="sr-only" for="q">Buscar órdenes</label>
+            <input id="q" name="q" type="search" th:value="${q}" autocomplete="off"
+                   placeholder="Buscar por código, cliente, teléfono o equipo">
+            <button class="btn btn--sm" type="submit">Buscar</button>
+        </form>
+        <a class="btn btn--sm" th:href="@{/admin/ordenes/nueva}">+ Registrar equipo</a>
+    </section>
+
+    <!-- Filtro por etapa -->
+    <nav class="chips" aria-label="Filtrar por etapa">
+        <a class="chip" th:classappend="${#strings.isEmpty(etapa)} ? 'is-active'"
+           th:href="@{/admin/ordenes(q=${q})}">Todas</a>
+        <a class="chip" th:each="e : ${ {'RECIBIDO','EN_DIAGNOSTICO','EN_REPARACION','LISTO_PARA_RETIRAR'} }"
+           th:classappend="${etapa == e} ? 'is-active'"
+           th:href="@{/admin/ordenes(q=${q},etapa=${e})}" th:text="${@estados.etiqueta(e)}">Recibido</a>
+        <a class="chip" th:classappend="${etapa == 'CERRADAS'} ? 'is-active'"
+           th:href="@{/admin/ordenes(q=${q},etapa='CERRADAS')}">Cerradas</a>
+    </nav>
+
+    <p class="results" th:if="${!#strings.isEmpty(q)}">
+        <span th:text="${#lists.size(ordenes)} + (${#lists.size(ordenes)} == 1 ? ' resultado' : ' resultados') + ' para «' + ${q} + '»'">2 resultados para «asus»</span>
+        <a class="link" th:href="@{/admin/ordenes(etapa=${etapa})}">Limpiar búsqueda</a>
+    </p>
+
+    <!-- Sin resultados -->
     <div class="empty-board" th:if="${#lists.isEmpty(ordenes)}">
-        <p>Todavía no hay órdenes. Cuando registres un equipo, aparecerá aquí.</p>
+        <p th:if="${#strings.isEmpty(q)}">Todavía no hay órdenes. Registra el primer equipo para empezar.</p>
+        <p th:unless="${#strings.isEmpty(q)}" th:text="'No encontramos órdenes para «' + ${q} + '».'">No encontramos órdenes.</p>
+        <a class="btn btn--sm" th:if="${#strings.isEmpty(q)}" th:href="@{/admin/ordenes/nueva}">Registrar equipo</a>
     </div>
 
-    <div class="board" th:unless="${#lists.isEmpty(ordenes)}">
-        <section th:replace="~{fragments/tablero :: lane('RECIBIDO', ${ordenes.?[estadoOrden.name() == 'RECIBIDO']})}"></section>
-        <section th:replace="~{fragments/tablero :: lane('EN_DIAGNOSTICO', ${ordenes.?[estadoOrden.name() == 'EN_DIAGNOSTICO']})}"></section>
-        <section th:replace="~{fragments/tablero :: lane('EN_REPARACION', ${ordenes.?[estadoOrden.name() == 'EN_REPARACION']})}"></section>
-        <section th:replace="~{fragments/tablero :: lane('LISTO_PARA_RETIRAR', ${ordenes.?[estadoOrden.name() == 'LISTO_PARA_RETIRAR']})}"></section>
+    <!-- Tablero por etapas -->
+    <div class="board" th:if="${!#lists.isEmpty(ordenes) and etapa != 'CERRADAS'}"
+         th:classappend="${!#strings.isEmpty(etapa)} ? 'board--single'">
+        <th:block th:if="${#strings.isEmpty(etapa) or etapa == 'RECIBIDO'}">
+            <section th:replace="~{fragments/tablero :: lane('RECIBIDO', ${ordenes.?[estadoOrden.name() == 'RECIBIDO']})}"></section>
+        </th:block>
+        <th:block th:if="${#strings.isEmpty(etapa) or etapa == 'EN_DIAGNOSTICO'}">
+            <section th:replace="~{fragments/tablero :: lane('EN_DIAGNOSTICO', ${ordenes.?[estadoOrden.name() == 'EN_DIAGNOSTICO']})}"></section>
+        </th:block>
+        <th:block th:if="${#strings.isEmpty(etapa) or etapa == 'EN_REPARACION'}">
+            <section th:replace="~{fragments/tablero :: lane('EN_REPARACION', ${ordenes.?[estadoOrden.name() == 'EN_REPARACION']})}"></section>
+        </th:block>
+        <th:block th:if="${#strings.isEmpty(etapa) or etapa == 'LISTO_PARA_RETIRAR'}">
+            <section th:replace="~{fragments/tablero :: lane('LISTO_PARA_RETIRAR', ${ordenes.?[estadoOrden.name() == 'LISTO_PARA_RETIRAR']})}"></section>
+        </th:block>
     </div>
 
     <!-- Ordenes cerradas: ya no admiten cambios de estado -->
-    <section class="closed" th:unless="${#lists.isEmpty(ordenes)}"
+    <section class="closed"
+             th:if="${!#lists.isEmpty(ordenes) and (#strings.isEmpty(etapa) or etapa == 'CERRADAS')}"
              th:with="cerradas=${ordenes.?[estadoOrden.name() == 'ENTREGADO' or estadoOrden.name() == 'CANCELADO']}">
         <h2>Cerradas <span class="count" th:text="${#lists.size(cerradas)}">0</span></h2>
         <ul>
@@ -36,10 +78,10 @@
                 <span th:text="${o.cliente.nombre}">María</span>
                 <span class="pill" th:classappend="${'pill--' + #strings.toLowerCase(o.estadoOrden.name())}"
                       th:text="${@estados.etiqueta(o.estadoOrden.name())}">Entregado</span>
+                <a class="link link--dark" th:href="@{/admin/ordenes/{id}/etiqueta(id=${o.id})}">Etiqueta</a>
             </li>
         </ul>
     </section>
 </main>
-
 </body>
 </html>

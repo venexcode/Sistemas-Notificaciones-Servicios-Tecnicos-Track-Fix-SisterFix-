@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/base :: head('Etiqueta ' + ${etiqueta.codigoSeguimiento})}"></head>
+<body>
+<main class="stage">
+    <header class="topbar no-print">
+        <a th:replace="~{fragments/base :: marca}"></a>
+        <a class="link" th:href="@{/admin/ordenes}">Volver al panel</a>
+    </header>
+
+    <div class="flash flash--ok no-print" role="status">Equipo registrado. Imprime la etiqueta y entrégala al cliente.</div>
+
+    <section class="label-sheet">
+
+        <!-- Copia del cliente -->
+        <div class="tag-wrap">
+            <article class="tag label">
+                <p class="label__kicker">Etiqueta del cliente</p>
+                <h1 th:text="${etiqueta.dispositivo}">Notebook ASUS</h1>
+                <p class="tag__owner"
+                   th:text="'Equipo de ' + ${#strings.arraySplit(etiqueta.nombreCliente, ' ')[0]} + ', ingresado el ' + ${#temporals.format(etiqueta.fechaCreacion, 'dd/MM/yyyy')}">
+                    Equipo de Juan, ingresado el 04/10/2026
+                </p>
+
+                <div class="label__body">
+                    <div class="label__qr" th:utext="${qrSvg}"></div>
+                    <div>
+                        <p class="label__legend">Tu código</p>
+                        <span class="stamp" th:text="${etiqueta.codigoSeguimiento}">K7P2-9XMA</span>
+                        <p class="label__help">Escanea el QR o entra a <strong th:text="${urlBase}">taller.com/sisterfix</strong> y escribe tu código para ver cómo va tu equipo.</p>
+                    </div>
+                </div>
+                <p class="stub">Presenta esta etiqueta para retirar tu equipo.</p>
+            </article>
+        </div>
+
+        <!-- Talon del taller -->
+        <div class="tag-wrap">
+            <article class="tag label">
+                <p class="label__kicker">Talón del taller · pegar en el equipo</p>
+                <h2 class="label__code" th:text="${etiqueta.codigoSeguimiento}">K7P2-9XMA</h2>
+                <dl class="label__data">
+                    <div><dt>Equipo</dt><dd th:text="${etiqueta.dispositivo}">Notebook ASUS</dd></div>
+                    <div><dt>Cliente</dt><dd th:text="${etiqueta.nombreCliente}">Juan Pérez</dd></div>
+                    <div><dt>Teléfono</dt><dd th:text="${etiqueta.telefonoCliente}">1123456789</dd></div>
+                    <div><dt>Problema</dt><dd th:text="${etiqueta.problemaReportado}">No enciende</dd></div>
+                </dl>
+                <p class="stub" th:text="'Ingreso: ' + ${#temporals.format(etiqueta.fechaCreacion, 'dd/MM/yyyy HH:mm')}">Ingreso: 04/10/2026 21:41</p>
+            </article>
+        </div>
+    </section>
+
+    <div class="actions no-print">
+        <button class="btn" type="button" onclick="window.print()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9V3h12v6M6 18H4v-7h16v7h-2M7 14h10v7H7z"/></svg>
+            Imprimir etiqueta
+        </button>
+        <a class="btn btn--light" th:href="@{/admin/ordenes/nueva}">Registrar otro equipo</a>
+    </div>
+</main>
+</body>
+</html>

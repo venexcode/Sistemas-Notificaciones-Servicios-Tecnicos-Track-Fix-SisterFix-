@@ -18,8 +18,15 @@ public class AdminOrderController {
     }
 
     @GetMapping
-    public String listarOrdenes(Model model) {
-        model.addAttribute("ordenes", ordenService.listarTodas());
+    public String listarOrdenes(
+            @RequestParam(value = "q", required = false, defaultValue = "") String q,
+            @RequestParam(value = "etapa", required = false, defaultValue = "") String etapa,
+            Model model) {
+
+        String texto = q.trim();
+        model.addAttribute("ordenes", texto.isEmpty() ? ordenService.listarTodas() : ordenService.buscar(texto));
+        model.addAttribute("q", texto);
+        model.addAttribute("etapa", etapa);
         return "admin/lista-ordenes";
     }
 
