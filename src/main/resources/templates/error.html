@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/base :: head('Algo salió mal')}"></head>
+<body>
+<main class="stage"
+      th:with="titulo=${status == 404 ? 'Esta página no existe.' : (status == 403 ? 'No tienes permiso para entrar aquí.' : (status == 429 ? 'Demasiados intentos seguidos.' : (status == 400 ? 'No entendimos esa solicitud.' : 'Algo falló de nuestro lado.')))},
+               detalle=${status == 404 ? 'La dirección que abriste no existe o cambió de lugar.' : (status == 403 ? 'Tu usuario no tiene acceso a esta sección. Si crees que es un error, consulta con el administrador.' : (status == 429 ? 'Espera unos minutos antes de volver a intentarlo.' : (status == 400 ? 'Revisa los datos e inténtalo de nuevo.' : 'Ya quedó registrado el problema. Inténtalo de nuevo en unos minutos.')))}">
+    <header class="topbar">
+        <a th:replace="~{fragments/base :: marca}"></a>
+    </header>
+
+    <section class="hero">
+        <div>
+            <h1 th:text="${titulo}">Esta página no existe.</h1>
+            <p th:text="${detalle}">La dirección que abriste no existe.</p>
+        </div>
+
+        <div class="tag-wrap">
+            <div class="tag">
+                <p class="label__kicker">Etiqueta de error</p>
+                <span class="stamp" th:text="'ERR-' + ${status}">ERR-404</span>
+                <p class="hint">Si tienes que avisarnos, dinos este código.</p>
+                <a class="btn btn--block" th:href="@{/}">Ir al inicio</a>
+                <button class="btn btn--block btn--light" type="button" onclick="history.back()">Volver atrás</button>
+            </div>
+        </div>
+    </section>
+</main>
+</body>
+</html>
