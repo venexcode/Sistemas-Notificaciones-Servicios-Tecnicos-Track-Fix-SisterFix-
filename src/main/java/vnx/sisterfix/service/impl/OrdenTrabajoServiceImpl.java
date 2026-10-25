@@ -6,6 +6,7 @@ import org.springframework.transaction.annotation.Transactional;
 import vnx.sisterfix.domain.enums.EstadoOrden;
 import vnx.sisterfix.domain.model.Cliente;
 import vnx.sisterfix.domain.model.OrdenTrabajo;
+import vnx.sisterfix.domain.util.GeneradorCodigoSeguimiento;
 import vnx.sisterfix.exception.OrdenNoEncontradaException;
 import vnx.sisterfix.repository.IClienteRepository;
 import vnx.sisterfix.repository.IOrdenTrabajoRepository;
@@ -23,6 +24,7 @@ import java.util.Optional;
 public class OrdenTrabajoServiceImpl implements OrdenTrabajoService {
 
     private static final int TELEFONO_MINIMO = 6;
+    private static final int INTENTOS_CODIGO = 10;
 
     private final IOrdenTrabajoRepository ordenTrabajoRepository;
     private final IClienteRepository clienteRepository;
@@ -59,12 +61,22 @@ public class OrdenTrabajoServiceImpl implements OrdenTrabajoService {
         orden.setDispositivo(dispositivo);
         orden.setProblemaReportado(problema);
         orden.setCliente(cliente);
-        // El codigo de seguimiento lo genera @PrePersist. El estado inicial queda en el historial.
-        orden.cambiarEstado(EstadoOrden.RECIBIDO, "Ingreso del equipo al taller.");
+        orden.setCodigoSeguimiento(generarCodigoUnico());
+        // El estado inicial queda en el historial (estadoAnterior = null).
         return ordenTrabajoRepository.save(orden);
     }
 
     // ---------- Clientes ----------
+    /** Genera un codigo que no exista todavia. La restriccion unique de la base sigue siendo la red de seguridad. */
+    private String generarCodigoUnico() {
+        for (int intento = 0; intento < INTENTOS_CODIGO; intento++) {
+            String codigo = GeneradorCodigoSeguimiento.generar();
+            if (!ordenTrabajoRepository.existsByCodigoSeguimiento(codigo)) {
+                return codigo;
+            }
+        }
+        throw new IllegalStateException("No se pudo generar un código de seguimiento único.");
+    }
 
     @Override
     @Transactional(readOnly = true)

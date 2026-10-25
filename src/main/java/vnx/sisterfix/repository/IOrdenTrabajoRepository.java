@@ -15,6 +15,8 @@ public interface IOrdenTrabajoRepository extends JpaRepository<OrdenTrabajo, Lon
     // Consulta principal del cliente por su codigo unico
     Optional<OrdenTrabajo> findByCodigoSeguimiento(String codigoSeguimiento);
 
+    boolean existsByCodigoSeguimiento(String codigoSeguimiento);
+
     // Panel de Administracion
     @EntityGraph(attributePaths = "cliente")
     List<OrdenTrabajo> findByEstadoOrden(EstadoOrden estadoOrden);
