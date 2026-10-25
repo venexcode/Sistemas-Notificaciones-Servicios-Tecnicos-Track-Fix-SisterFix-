@@ -6,6 +6,7 @@ import org.springframework.transaction.annotation.Transactional;
 import vnx.sisterfix.domain.enums.EstadoOrden;
 import vnx.sisterfix.domain.model.Cliente;
 import vnx.sisterfix.domain.model.OrdenTrabajo;
+import vnx.sisterfix.exception.OrdenNoEncontradaException;
 import vnx.sisterfix.repository.IClienteRepository;
 import vnx.sisterfix.repository.IOrdenTrabajoRepository;
 import vnx.sisterfix.service.OrdenTrabajoService;
@@ -162,7 +163,7 @@ public class OrdenTrabajoServiceImpl implements OrdenTrabajoService {
     @Transactional
     public OrdenTrabajo actualizarEstado(Long ordenId, EstadoOrden nuevoEstado, String observaciones) {
         OrdenTrabajo orden = ordenTrabajoRepository.findById(ordenId)
-                .orElseThrow(() -> new IllegalArgumentException("Orden no encontrada con ID: " + ordenId));
+                .orElseThrow(() -> new OrdenNoEncontradaException(ordenId));
 
         // cambiarEstado valida la transicion y lanza IllegalStateException si no es valida
         orden.cambiarEstado(nuevoEstado, observaciones);

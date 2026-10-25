@@ -5,6 +5,8 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import vnx.sisterfix.domain.enums.EstadoOrden;
+import vnx.sisterfix.exception.OrdenNoEncontradaException;
+import vnx.sisterfix.exception.TransicionInvalidaException;
 import vnx.sisterfix.service.OrdenTrabajoService;
 
 @Controller
@@ -40,7 +42,7 @@ public class AdminOrderController {
         try {
             ordenService.actualizarEstado(id, nuevoEstado, observaciones);
             redirectAttributes.addFlashAttribute("mensaje", "Estado actualizado correctamente.");
-        } catch (IllegalArgumentException | IllegalStateException e) {
+        } catch (OrdenNoEncontradaException | TransicionInvalidaException | IllegalStateException e) {
             redirectAttributes.addFlashAttribute("error", e.getMessage());
         }
         return "redirect:/admin/ordenes";

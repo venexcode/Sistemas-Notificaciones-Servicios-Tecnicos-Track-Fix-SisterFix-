@@ -5,6 +5,7 @@ import jakarta.validation.constraints.NotBlank;
 import lombok.*;
 import vnx.sisterfix.domain.enums.EstadoOrden;
 import vnx.sisterfix.domain.util.GeneradorCodigoSeguimiento;
+import vnx.sisterfix.exception.TransicionInvalidaException;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -80,11 +81,11 @@ public class OrdenTrabajo {
         // Si estadoOrden es null, es el primer registro (creacion de la orden)
         if (this.estadoOrden != null) {
             if (this.estadoOrden == EstadoOrden.ENTREGADO || this.estadoOrden == EstadoOrden.CANCELADO) {
-                throw new IllegalStateException(
+                throw new TransicionInvalidaException(
                         "No se puede modificar una orden en estado " + this.estadoOrden + ".");
             }
             if (this.estadoOrden == nuevoEstado) {
-                throw new IllegalStateException("La orden ya se encuentra en estado " + nuevoEstado + ".");
+                throw new TransicionInvalidaException("La orden ya se encuentra en estado " + nuevoEstado + ".");
             }
         }
 
