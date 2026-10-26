@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/base :: head('Usuarios del taller')}"></head>
+<body>
+<main class="stage">
+    <header class="topbar">
+        <a th:replace="~{fragments/base :: marca}"></a>
+        <a class="link" th:href="@{/admin/ordenes}">Volver al panel</a>
+    </header>
+
+    <div class="flash flash--ok" role="status" th:if="${mensaje}" th:text="${mensaje}">Listo.</div>
+    <div class="flash flash--error" role="alert" th:if="${error}" th:text="${error}">Error</div>
+
+    <section class="hero">
+        <div>
+            <h1>El equipo del taller.</h1>
+            <p>Cada persona entra con su propio usuario. Los administradores gestionan usuarios; los técnicos solo usan el panel.</p>
+
+            <ul class="user-list">
+                <li class="user" th:each="u : ${usuarios}" th:classappend="${!u.activo} ? 'is-off'">
+                    <div class="user__main">
+                        <strong th:text="${u.username}">admin</strong>
+                        <span class="pill pill--rol" th:text="${u.rol.etiqueta}">Administrador</span>
+                        <span class="pill pill--cancelado" th:unless="${u.activo}">Inactivo</span>
+                        <span class="hint" th:if="${u.username == actual}">(tú)</span>
+                    </div>
+                    <div class="user__actions">
+                        <form th:action="@{/admin/usuarios/{id}/estado(id=${u.id})}" method="post" th:unless="${u.username == actual}">
+                            <button class="btn btn--sm btn--light" type="submit" th:text="${u.activo} ? 'Desactivar' : 'Activar'">Desactivar</button>
+                        </form>
+                        <details>
+                            <summary>Cambiar contraseña</summary>
+                            <form th:action="@{/admin/usuarios/{id}/password(id=${u.id})}" method="post">
+                                <label class="sr-only" th:for="${'pw-' + u.id}">Nueva contraseña</label>
+                                <input class="input" th:id="${'pw-' + u.id}" type="password" name="nuevaPassword"
+                                       minlength="8" maxlength="72" required autocomplete="new-password" placeholder="Mínimo 8 caracteres">
+                                <button class="btn btn--sm" type="submit">Guardar</button>
+                            </form>
+                        </details>
+                    </div>
+                </li>
+            </ul>
+        </div>
+
+        <div class="tag-wrap">
+            <form class="tag" th:object="${form}" th:action="@{/admin/usuarios}" method="post">
+                <fieldset class="group">
+                    <legend>Nuevo usuario</legend>
+
+                    <div class="field">
+                        <label for="username">Usuario</label>
+                        <input class="input" id="username" type="text" th:field="*{username}" required minlength="3" maxlength="40"
+                               autocomplete="off" autocapitalize="none" spellcheck="false"
+                               th:attr="aria-invalid=${#fields.hasErrors('username')}">
+                        <p class="field-error" th:if="${#fields.hasErrors('username')}" th:errors="*{username}">Error</p>
+                    </div>
+
+                    <div class="field">
+                        <label for="password">Contraseña <small>(mínimo 8 caracteres)</small></label>
+                        <input class="input" id="password" type="password" th:field="*{password}" required minlength="8" maxlength="72"
+                               autocomplete="new-password" th:attr="aria-invalid=${#fields.hasErrors('password')}">
+                        <p class="field-error" th:if="${#fields.hasErrors('password')}" th:errors="*{password}">Error</p>
+                    </div>
+
+                    <div class="field">
+                        <label for="rol">Rol</label>
+                        <select class="input" id="rol" th:field="*{rol}">
+                            <option th:each="r : ${roles}" th:value="${r}" th:text="${r.etiqueta}">Técnico</option>
+                        </select>
+                        <p class="field-error" th:if="${#fields.hasErrors('rol')}" th:errors="*{rol}">Error</p>
+                    </div>
+                </fieldset>
+
+                <button class="btn btn--block" type="submit">Crear usuario</button>
+                <p class="stub">Las contraseñas se guardan cifradas: nadie, ni tú, puede leerlas después.</p>
+            </form>
+        </div>
+    </section>
+</main>
+</body>
+</html>

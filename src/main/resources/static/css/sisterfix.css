@@ -343,3 +343,17 @@ textarea.input { min-height: 6rem; resize: vertical; font-weight: 500; }
   .label__qr { border-color: #000; }
   .stamp, .label__code { color: #000; border-color: #000; }
 }
+
+/* ============ Fase 2: usuarios ============ */
+.user-list { display: grid; gap: .6rem; margin-top: 2rem; max-width: 520px; }
+.user { padding: .9rem 1.1rem; color: var(--ink); background: var(--paper); border-left: 6px solid var(--mat); border-radius: 2px; }
+.user.is-off { opacity: .75; border-left-color: var(--rule); }
+.user__main { display: flex; flex-wrap: wrap; align-items: center; gap: .4rem .75rem; }
+.user__main strong { font-size: 1.1rem; }
+.user__actions { display: flex; flex-wrap: wrap; align-items: flex-start; gap: .6rem 1.25rem; margin-top: .65rem; }
+.user__actions form { margin: 0; }
+.user details summary { cursor: pointer; font-weight: 600; font-size: .9rem; text-decoration: underline; text-underline-offset: 3px; padding: .35rem 0; }
+.user details form { display: flex; flex-wrap: wrap; gap: .5rem; margin-top: .5rem; }
+.user details .input { flex: 1; min-width: 12rem; padding: .45rem .6rem; font-size: .95rem; }
+.pill--rol { color: var(--ink); background: var(--paper-shade); }
+.user .hint { margin: 0; }
