@@ -45,12 +45,19 @@ public class OrdenTrabajoServiceImpl implements OrdenTrabajoService {
         String telefono = normalizarTelefono(form.getTelefono());
         String email = normalizarEmail(form.getEmail());
 
-        Cliente cliente = localizarCliente(telefono, email).orElseGet(() ->
-                clienteRepository.save(new Cliente(form.getNombre().trim(), telefono, email)));
+        Optional<Cliente> clienteExistente = localizarCliente(telefono, email);
+        Cliente cliente;
 
-        // Si el cliente ya existia sin email y ahora lo tenemos, lo completamos
-        if (cliente.getEmail() == null && email != null) {
-            cliente.setEmail(email);
+        if (clienteExistente.isPresent()) {
+            // Cliente ya existe: actualizar su nombre y email si cambiaron
+            cliente = clienteExistente.get();
+            cliente.setNombre(form.getNombre().trim());
+            if (email != null) {
+                cliente.setEmail(email);
+            }
+        } else {
+            // Cliente nuevo: crear y guardar
+            cliente = clienteRepository.save(new Cliente(form.getNombre().trim(), telefono, email));
         }
 
         return nuevaOrden(cliente, form.getDispositivo().trim(), form.getProblemaReportado().trim());

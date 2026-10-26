@@ -42,6 +42,8 @@
                         <p class="field-error" th:if="${#fields.hasErrors('nombre')}" th:errors="*{nombre}">Error</p>
                     </div>
 
+                    <button class="btn btn--sm btn--light" id="btn-editar" type="button" style="display:none; margin-top:0.5rem">Editar datos de este cliente</button>
+
                     <div class="field">
                         <label for="email">Email <small>(opcional)</small></label>
                         <input class="input" id="email" type="email" th:field="*{email}" maxlength="120"

@@ -23,6 +23,11 @@
                     <strong>Cerraste sesión.</strong>
                 </div>
 
+                <div class="notice" th:if="${param.bloqueado}" role="alert">
+                    <strong>Demasiados intentos.</strong>
+                    Espera unos minutos antes de volver a intentarlo.
+                </div>
+
                 <div class="field">
                     <label class="field-label" for="username">Usuario</label>
                     <input class="code-input" id="username" name="username" type="text"

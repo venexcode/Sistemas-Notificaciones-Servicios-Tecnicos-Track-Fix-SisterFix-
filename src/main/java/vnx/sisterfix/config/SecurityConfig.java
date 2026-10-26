@@ -5,15 +5,16 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 import org.springframework.core.annotation.Order;
-import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.core.userdetails.User;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import vnx.sisterfix.security.RateLimitFilter;
+import vnx.sisterfix.security.RateLimiter;
+
+import java.time.Duration;
 
 @Configuration
 @EnableWebSecurity
@@ -33,13 +34,22 @@ public class SecurityConfig {
 
     @Bean
     @Order(2)
-    SecurityFilterChain appChain(HttpSecurity http) throws Exception {
+    SecurityFilterChain appChain(
+            HttpSecurity http,
+            RateLimiter limitador,
+            @Value("${sisterfix.seguridad.login-max-intentos:8}") int loginMaximo,
+            @Value("${sisterfix.seguridad.login-ventana-minutos:10}") long loginMinutos,
+            @Value("${sisterfix.seguridad.consulta-max-intentos:30}") int consultaMaximo,
+            @Value("${sisterfix.seguridad.consulta-ventana-minutos:1}") long consultaMinutos) throws Exception {
+
+        RateLimitFilter limite = new RateLimitFilter(limitador,
+                loginMaximo, Duration.ofMinutes(loginMinutos),
+                consultaMaximo, Duration.ofMinutes(consultaMinutos));
+
         http
                 .authorizeHttpRequests(auth -> auth
-                        // Publico: consulta del cliente y recursos estaticos
                         .requestMatchers("/", "/sisterfix/**", "/css/**", "/js/**", "/login", "/error").permitAll()
-                        // Privado: panel del taller
-                        .requestMatchers("/admin/**").hasRole("ADMIN")
+                        .requestMatchers("/admin/**").hasAnyRole("ADMIN", "TECNICO")
                         .anyRequest().authenticated())
                 .formLogin(form -> form
                         .loginPage("/login")
@@ -47,24 +57,13 @@ public class SecurityConfig {
                         .permitAll())
                 .logout(logout -> logout
                         .logoutSuccessUrl("/login?logout")
-                        .permitAll());
+                        .permitAll())
+                .addFilterBefore(limite, UsernamePasswordAuthenticationFilter.class);
         return http.build();
     }
 
     @Bean
     PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
-    }
-
-    /** Usuario administrador definido en application-*.properties (en prod, por variables de entorno). */
-    @Bean
-    UserDetailsService userDetailsService(PasswordEncoder encoder,
-                                          @Value("${sisterfix.admin.usuario}") String usuario,
-                                          @Value("${sisterfix.admin.password}") String password) {
-        return new InMemoryUserDetailsManager(
-                User.withUsername(usuario)
-                        .password(encoder.encode(password))
-                        .roles("ADMIN")
-                        .build());
     }
 }

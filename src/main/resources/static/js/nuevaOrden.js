@@ -7,6 +7,7 @@
   var email = document.getElementById('email');
   var nombre = document.getElementById('nombre');
   var nota = document.getElementById('cliente-nota');
+  var btnEditar = document.getElementById('btn-editar');
   var url = form.getAttribute('data-buscar-url');
   var espera, ultimaClave = '', bloqueado = false;
 
@@ -16,6 +17,7 @@
     nombre.readOnly = false;
     email.readOnly = false;
     nota.hidden = true;
+    btnEditar.hidden = true;
   }
 
   function mostrar(cliente) {
@@ -30,6 +32,7 @@
     nota.appendChild(fuerte);
     nota.appendChild(document.createTextNode(' Se usará su ficha.'));
     nota.hidden = false;
+    btnEditar.hidden = false;
   }
 
   function consultar() {
@@ -53,8 +56,25 @@
     espera = setTimeout(consultar, 350);
   }
 
-  tel.addEventListener('input', programar);
-  email.addEventListener('input', programar);
+  btnEditar.addEventListener('click', function (e) {
+    e.preventDefault();
+    bloqueado = false;
+    nombre.readOnly = false;
+    email.readOnly = false;
+    nombre.focus();
+    btnEditar.hidden = true;
+  });
+
+  tel.addEventListener('input', function () {
+    soltar();
+    programar();
+  });
+
+  email.addEventListener('input', function () {
+    soltar();
+    programar();
+  });
+
   tel.addEventListener('blur', consultar);
   email.addEventListener('blur', consultar);
   if (tel.value) consultar();
