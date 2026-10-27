@@ -69,6 +69,7 @@ public class OrdenTrabajoServiceImpl implements OrdenTrabajoService {
         orden.setProblemaReportado(problema);
         orden.setCliente(cliente);
         orden.setCodigoSeguimiento(generarCodigoUnico());
+        orden.cambiarEstado(EstadoOrden.RECIBIDO, "");
         // El estado inicial queda en el historial (estadoAnterior = null).
         return ordenTrabajoRepository.save(orden);
     }
